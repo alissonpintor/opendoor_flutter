@@ -1,10 +1,12 @@
+import 'package:opendoor_flutter/interfaces/session.dart';
+
 interface class Authentication {
-  login() {
+  Session login(String username, String password) {
     // TODO: implement login
     throw UnimplementedError();
   }
 
-  logout() {
+  logout(Session session) {
     // TODO: implement logout
     throw UnimplementedError();
   }
