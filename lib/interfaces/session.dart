@@ -1,10 +1,15 @@
 interface class Session {
-  get() {
+  Future<dynamic> get(String resource) {
     // TODO: implement get
     throw UnimplementedError();
   }
 
-  post(Map<String, String> payload) {
+  post(String resource, {required Map<String, String> payload}) {
+    // TODO: implement post
+    throw UnimplementedError();
+  }
+
+  put(String resource, {required Map<String, String> payload}) {
     // TODO: implement post
     throw UnimplementedError();
   }

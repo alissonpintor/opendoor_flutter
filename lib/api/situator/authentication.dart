@@ -16,12 +16,13 @@ class AuthenticationSituator implements Authentication {
   AuthenticationSituator({required String this.baseUrl});
 
   @override
-  Future<Session> login(String username, String password) async {
+  Future<Session> login(
+      {required String username, required String password}) async {
     Uri resourceUrl = Uri.parse('$baseUrl/$loginEndpoint');
     SessionSituator session;
     String body = jsonEncode({
-      "userName": "string",
-      "password": "string",
+      "userName": username,
+      "password": password,
       "rememberMe": true,
       "accountId": 0
     });
@@ -29,23 +30,22 @@ class AuthenticationSituator implements Authentication {
     http.Response response = await http.put(
       resourceUrl,
       body: body,
+      headers: {'Content-Type': 'application/json'},
     );
-
-    if (response.statusCode == 200) {
-      if (response.headers.containsKey('Seventh.Auth')) {
-        throw Http400BadRequest();
-      }
-
-      String sessionId = response.headers['Seventh.Auth']!;
-      session = SessionSituator(sessionId: sessionId);
-
-      return session;
-    }
 
     if (response.statusCode == 400) throw Http400BadRequest();
     if (response.statusCode == 401) throw Http401Unauthorized();
     if (response.statusCode == 403) throw Http403Forbidden();
     if (response.statusCode == 503) throw Http503ServiceUnavailable();
+    if (!response.headers['set-cookie']!.contains('Seventh.Auth'))
+      throw Http400BadRequest();
+
+    String sessionId = response.headers['set-cookie']!;
+    RegExp regex = RegExp("(^| )Seventh.Auth=([^;]+)");
+    sessionId = regex.firstMatch(sessionId)!.group(0)!;
+    session = SessionSituator(baseUrl: baseUrl, sessionId: sessionId);
+
+    return session;
   }
 
   @override
